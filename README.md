@@ -6,3 +6,14 @@ Works with Windows Server 2012 and above, Python 3.7.x and above, and PowerShell
 I just uploaded these files and, as is typical in many software development projects, I haven't written the documentation yet. I'll get notes written and uploaded very soon, but in the meantime send me a message and I'll get you going. Also be sure to read all those usage notes at the top of the FSRM-Anti-ransomware.ps1.
 
 The FSRM-Anti-ransomware.ps1 script writes detailed messages to the Windows Application Event Log. That's the place to start if you're having trouble getting this installed.
+
+Getting Started:
+Download this repository as a zip file. Unzip to a directory named "C:\Program Files\FSRM Anti-ransomware"
+Install Python 3.7.x or higher for "all users" and make sure it's on the path.
+As Administrator - open a PowerShell prompt, change to the new directory, and run AntiransomwareFiltersMerge.py.
+Still as Adminstrator - run FSRM-Anti-ransomware.ps1 and follow the prompts for a basic installation. You may use customized presets and place them in the NameHere-Custom-PreLoad-FSRM-Anti-ransomware.ps1 script so you don't have to type all that out every time.
+
+That's the very sparse quick start. I'll get very detailed instructions done sooner rather than later.
+
+Jason Kreisler
+18 Oct 2019
