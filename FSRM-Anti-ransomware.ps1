@@ -12,7 +12,7 @@ param(
 	[bool]$DownloadFiltersJson = $false, # boolean inputs are either $true or $false, they require the dollar sign to precede the value, recommend leaving $false
 	[string]$DownloadFiltersJsonURL = "https://fsrm.experiant.ca/api/v1/combined",  # they do a great job keeping their filters up to date
 
-	[string]$JSONfnamesubstring = "modified", # put client name, server name, etc. to match your input JSON file
+	[string]$JSONfnamesubstring = "extended", # put client name, server name, etc. to match your input JSON file
 
 	# !! be sure you undertand what "passive" and "active" mean in the context of FSRM before overriding
 	#	active sends email alerts and actively blocks access to files (good for production files, prevents any encryption)
