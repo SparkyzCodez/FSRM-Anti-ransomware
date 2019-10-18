@@ -1,0 +1,29 @@
+[Admin Email]- email addresses of admin who receive the notification email
+
+[File Screen Path] - file screen path
+
+[File Screen Remote Paths] - remote path in UNC \\server\share form
+
+[File Screen System Path] - file screen path in canonical \\?\VolumeGUID\  form
+
+[Server Domain] - domain of server on which occurred
+
+[Server] - server on which occurred
+
+[Source File Owner Email] - e-mail of the owner of the unauthorized file
+
+[Source File Owner] - owner of the unauthorized file
+
+[Source File Path] - path of the unauthorized file
+
+[Source File Remote Paths] - remote path of file in UNC format
+
+[Source Io Owner Email] - email address of the owner of the I/O on the file
+
+[Source Io Owner] - owner of the I/O on the file
+
+[Source Process Id] - PID of the process
+
+[Source Process Image] - program file for the process
+
+[Violated File Group] - file group containing the unauthorized file
