@@ -61,23 +61,24 @@ Notes:
 		Compare the following two lines. One is Unicode and the other ASCII. If they look completely different from each other then you've lost Unicode encoding!
 			Α-Uиịϲоԁḙ-Ω		(Unicode, mix of Greek, Cyrillic, and Latin characters, and begins with Greek alpha and ends with Greek omega)
 			A-Unicode-O		(ASCII, plain text)
-		(A BOM shouldn't ever be necessary with UTF-8 Unicode, but the PowerShell ISE still needs it.)
+		(A BOM shouldn't ever be necessary with UTF-8 Unicode, but the PowerShell ISE still needs it. Be sure this file has a BOM.)
 	Important! You must leave the FSRM global setting Notification Limits->Command notification (minutes): set to 0 (zero). It will be reset each time this script runs.
 		If you must have this set to something else then you'll need to reset the FSRM service in the triggered scripts each time they run.
 		You "should" also have the event notification set to 0 so that each event goes to the Windows event log
-		The reason is that we're using a mechanism (FSRM file screens) that was originally intended only for notification messages. We are re-purposing it for security actions. Be strict!
+		The is because we're using a mechanism (FSRM file screens) that was originally intended only for notification messages. 
+			We are re-purposing it for security actions. Be strict!
 	Important! This script assumes that you DO NOT already have file screens applied to drives/shares captured by this script.
 		Only one screen is allowed per directory (share,drive,directory)
-		If other screens have been applied to the same share / drive points then this script will fail at creating new file screens on those points.
+		If other screens have been applied to the same shares / drive points then this script will fail at creating new file screens on those points.
 	Important! When you run this script be sure you read and remediate all errors and warnings shown on the screen and shown in the Windows Application event log.
 		When this script runs correctly there will be no warnings or errors.
 		exception:
 			There may be warnings (not errors) about the email configuration.
 			The warnings will clear when you rerun this script a second time, after which the warnings will stay cleared.
-	Edit the variables in the "Begin" section to match your SMTP setup and admin email
+	Edit the variables in the "Begin" section or in a custome pre-load script to match your SMTP setup and admin email.
 	If FSRM is already installed you should still run this script. It will take care of the parts that we need for ransomware detection.
 	Special note for installing FSRM on Windows 2012 and 2012r2
-		After installing FSRM you will need to reboot the OS manually. Take note of the message on the screen telling you to do so.
+		After installing FSRM you will probably need to reboot the OS manually. Take note of the message on the screen telling you to do so.
 		When you run this script the second time to install all the file screens you may still see quite a few errors. Just stop and then restart the FSRM service.
 		You can avoid all this trouble by either installing WMF 5.1 or manually installing FSRM and rebooting first. This is for Windows 2012 versions only.
 			requires .NET 4.5.2 or higher, will install with lower versions without error but functionality will be impacted
@@ -91,139 +92,6 @@ Notes:
 		The settings are there, you just can't see them because there's no refresh option at the top level of the FSRM manager.	
 	The option to download a filters list from https://fsrm.experiant.ca assumes that you have initialized your Internet Explorer.
 		The Invoke-WebRequest command uses the Internet Explorer engine. Internet Explorer must be setup and your settings must allow the download. Don't know Edge impact.
-
-KB's Modification Notes - I've made a ton of changes to the original version and I'm no PowerShell expert. The foundation for this script was originated by Luke Orellana. Thanks Luke!
-	inspiration script source:
-		https://www.altaro.com/hyper-v/using-file-server-resource-manager-screen-ransomware/
-		https://www.altaro.com/hyper-v/author/luke-orellana/
-		And Luke's works with Windows 2008 too.
-	Also a big thank you to the folks Changemaker Studios who make PowerCut, a very simple SMTP server emulator that is fantastic for testing.
-		https://github.com/ChangemakerStudios/Papercut (they deserve beer money)
-	Also a big thank you to the folks who host regex 101
-		https://regex101.com/ (this site helps me just about any time I attempt regex, they deserve beer money)
-	HUGE! Thank you to:
-		https://fsrm.experiant.ca
-			They update their list of ransomware file names and extensions every few days. So thankful for them. They deserve your business if you have a need.
-		https://fsrm.experiant.ca/api/v1/combined
-			They host an up to date list of the latest file names in json download format, the maintainers deserve beer money
-	A quick note about this document's formatting:
-		I've been using Smith/White formatting since the K&R days of C. I know it's not to everyone's liking. Sorry in advance.
-		Because the Windows PowerShell ISE is a pain about tabs, all the tabs in this document are hard. For best viewing set your spacing to 4 like ISE.
-		I let my comments and code go way beyond the old 80 character boundary. Scroll if you gotta.
-		This is my first significant PowerShell script and I'm pretty sure I don't like PowerShell. It's even wordier than me.
-
-changes from version 1.0 to 2.x by Kurt Brown (KB):
-	Only runs on Win2012 (Windows 6.2) or higher, this will absolutely not run on W2008, Luke's original script will however.
-	script is now using PowerShell version 4
-	added a huge number of suspect file extensions to the static list, not all from Experiant's list
-	converted all Get-Win32 calls to Get-CIM style
-		Get-Win32 is now deprecated so it's time to move on
-	fixed backtick (escaped character) bug for line containing the service force restart which was part of a remediation script that gets created
-		Restart-Service "File Server Resource Manager" -force
-		then I commented out the line but left it in the script just in case someone needs it
-	removed XML export/import method and replaced it with native FSRM PowerShell commands
-	changed the script creation target directory to "C:\PROGRA~1\FSRM-triggered-scripts"
-		added a variable to contain the value
-			sure the path name is wordy but it also tells other admins why the script(s) is there and what it is for
-			! Do not use a path name with spaces in it. It will lead to an escaping of the escaping string complications.
-	added option to apply template to found shares instead of only found drives
-	converted discovering and adding to drives from variable/foreach to pipelined ForEach-Object method (the single line technique that I personally prefer)
-	the FSRM Command -> Command arguments does not seem to handle spaces in quoted path strings correctly, quotes in quotes may be the problem, do this
-		-Command "& {C:\PROGRA~1\FSRM-triggered-scripts\XXXXXX.ps1"
-		!! this assumes that "C:\Program Files" is "C:\PROGRA~1" which should be the case unless the Program Files directory was recreated manually (very unlikely)
-	removed all mandatory parameter processing
-	added Begin clause for startup version and other prereq testing
-	added SMTP server and security admin email address variables
-	source email address will be FSRM-[hostname]@[domain name]
-		test for SMTP global settings and apply in initial settings if necessary
-	removed email options from the triggered script and instead added the email functions to the template or the FSRM general options since it's already built-in to FSRM
-	caused the user information to be passed to the triggered script
-	added honey pot directory capability, new functionality not in original script
-		added second file group to catch all files
-		created a passive file screen template, hopefully the bad actor will leave some footprints for forensic analysis, this could really really help you
-	dropped logic to count users on a share, blocking all the shares now
-	added variables to control which sort of screening to apply
-	added option to delete current file screens so that they can be reapplied to newly found shares and drives, delete near beginning of script in case templates need to be nuked too
-		especially useful for honey pots
-	Special case!: if the drive roots are screened we exclude C: because it's the OS drive, added a special case to pick up any shares (however misguided they may be) on C:
-	tried using try/except blocks but they don't suppress caught errors, not adequate for an "ask forgiveness" paradigm, switching to if/then "ask permission" paradigm
-		Have I mentioned how frustrating PowerShell can be? Maybe it can be Python when it grows up.
-	testing if templates already exist, if not then create (new), if exist then update (set)
-	just added hundreds more of new suspect file names and extensions, currently 2700+ entries, *.potato is still on the list, Who's hungry? Me!
-	moving the hard coded file names and extension to a variable as a default that should be overwritten dynamically later in the script
-		import via JSON, either from file or from https://fsrm.experiant.ca/api/v1/combined.
-			!! this import does not support exclusions, important !!
-			It would be inappropriate to have Experiant, or anyone else, provide exclusion information. Use your own local JSON or manually populate this script.
-	additional error detection, warnings, and hard exits
-	The json file we're using is a super-set of the Experiant version
-		I've added an allowed file names section that I use with a Python script to merge and groom the Experiant data and additional sources that I've accumulated
-		I've added an exception section too. This is used for the "Files to exclude" section of our fsrm file group.
-		Default location is for the json file to be in the same location as this script. You may override that.
-		Our filtered file names and extensions are more comprehensive that those on Experiant, but many are not verified and many are extended with additional wildcards.
-			the point: run your file screens with only reporting and only passive for a while to make sure you don't have unintended lockouts
-	added a BOM to this script source file as a work around for PowerShell ISE, now UTF-8-BOM
-		UTF-8 shouldn't need a BOM at all but PowerShell seems to assume ASCII, this script relies on Unicode/UTF-8 encoding for the embedded filters
-		also added ASCII to Unicode comparison strings at the top of this script so that encoding problems are very obvious
-	local JSON input file reading now matches a wildcard pattern and uses the most recent one found
-		most recent is indicated by date string in file's name and not by actual file date
-	tested Windows and PowerShell versions, script has been tested on W2012(r1) through W2019, tried W2008 but it's not possible with this script
-	added a confirmation variable that must be set manually to acknowledge that the user understands the security implications and is ready to proceed
-	change honey pot file group to HoneyPotAllFilesWildcard or something like that
-	add exclude option to honey pots, thumbs.db and desktop.ini are what I have in mind, for those who just can't resist pushing the big red button
-	made triggered script path detection and creation a bit more polite
-	fixed - Get-ChildItem fails silently, $? is always true, found new way to detect failure
-	print each file screen's name as it's deleted, otherwise this process is too quiet and there could be hundreds of honey pots to delete
-	added a "#Requires -Version 4 -RunAsAdministrator" globals to the top of the script
-		do not add any spaces between the hash symbol and "Requires", you'll break it
-		JSON parsing when data is pipelined from Get-Content is wonky in PowerShell 4 and below.
-			Get-Content | ConvertFrom-Json may fail without warning. The cause is the Get-Content by default creates an array of strings that ConvertFrom-Json can't always parse.
-				-Raw is what you need to add to Get-Content. This tells Get-Content to treat the input as one single string.
-			Not an issue at all for PowerShell 5.1 and above (WMF 5.1).
-			For Windows 2012 you must install Windows Management Framework 5.1, probably should for Windows 2012r2 too
-				https://www.microsoft.com/en-us/download/details.aspx?id=54616
-				W2K12-KB3191565-x64.msu is the file you want (sha 256: 4a1385642c1f08e3be7bc70f4a9d74954e239317f50d1a7f60aa444d759d4f49 )
-				full disclosure - you can work around this and use only PowerShell 3, but you have to modify this script. I recommend using WMF 5.1.
-	added logging to Windows Application event log, source is configurable, event log is configurable but should probably always be "Application"
-		create source every time script runs, will usually fail silently (and gracefully) because the source already exists
-		convenience copies:
-			Write-EventLog -LogName $EventLog -Source $EventLoggingSource -Category 0 -EventID 0 -EntryType Information -Message $message
-			Write-EventLog -LogName Application -Source $EventLoggingSource -Category 0 -EventID 1000 -EntryType Warning -Message $message
-			Write-EventLog -LogName $EventLog -Source $EventLoggingSource -Category 0 -EventID 2000 -EntryType Error -Message $message
-		category always 0, puts "None" in event log
-		event IDs 2001-2999 are critical show stoppers
-		event IDs 1001-1999 are warnings
-		event IDs 1-999 are just informational and indicate normal operation
-			1 is always script startup
-			999 is always normal script shutdown
-	convert all Write-Ouput to Write-Host
-		colorized outputs
-			information - default
-			warning - yellow
-			error - red
-	updated default filters - 2018-08-27
-	added -Raw flag to Get-Content | ConvertFrom-Json
-		fixed intermittent JSON conversion error, caused by default of "array of strings", -Raw forces input to a single string
-	renamed script to FSRM-Anti-ransomware.ps1
-		can be renamed without problems, whatever you like, be sure declaration at top of begin and call at bottom of the script match
-	adding param() block back into script now that the variables are finalized
-		contains most commonly changed values, other configuration variables are located the top of begin{}
-	modified honey pot refresh to only remove honey pot templates that were created by the current instance of this script
-		allows multiple $HoneyPotDirectoryNamePattern to be used
-    output param() variables to event log
-		event 1, 999 (both normal), and all warnings and errors
-		formatting from https://stackoverflow.com/questions/21559724/getting-all-named-parameters-from-powershell-including-empty-and-set-ones (scroll down web page)
-		added Out-String
-	added $JSONfnamesubstring
-		you can put any word (without spaces) you like to match the same substring in your input JSON file name
-		allows for easy specification of custom JSON files, could be a client/company name, a server name, or whatever
-
-to do:
-	add option to triggered script to disable the user's account, ?maybe some permissions/account gotchas?
-	add command line parameters to triggered script to specify any combination of blocking single share, all shares, and disable users
-		lack of command line parameter being passed should block all shares AND disable user, we should default to most restrictive options
-	convert the string-here to an array of strings for easier modification and nicer formatting in this script
-	write instructions on using multiple honey pot directory patterns
-	write instruction on dangers of using actual Administrator account, have a backdoor account that's never used but is active
 #>
 function InstallUpdate-FSRMRansomwareScreening
 {
