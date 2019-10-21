@@ -9,17 +9,20 @@ param(
 	[string]$AdminEmailTo = "securityadmin@example.com",
 
 	# while you can download filters directly it is better to use the included Python script that generates JSON input data and carries all your options forward
-	[bool]$DownloadFiltersJson = $false, # boolean inputs are either $true or $false, they require the dollar sign to precede the value, recommend leaving $false
-	[string]$DownloadFiltersJsonURL = "https://fsrm.experiant.ca/api/v1/combined",  # they do a great job keeping their filters up to date
+	# legacy download will download a combined.json file containing filters AND modify the filter list based on local legacy IncludeList.txt and SkipList.txt
+	#	! must be in the same directory as this script ! (will not relocate like legacy scripts do)
+	[bool]$LegacyDownloadFiltersJson = $false, # boolean inputs are either $true or $false, they require the dollar sign to precede the value, recommend leaving $false
+	[string]$LegacyDownloadFiltersJsonURL = "https://fsrm.experiant.ca/api/v1/combined",  # they do a great job keeping their filters up to date
 
 	[string]$JSONfnamesubstring = "extended", # put client name, server name, etc. to match your input JSON file
 
-	# !! be sure you undertand what "passive" and "active" mean in the context of FSRM before overriding
-	#	active sends email alerts and actively blocks access to files (good for production files, prevents any encryption)
-	#	passive sends email alerts but does not block access to files (good for honey pots so you can do forensics on encrypted files)
+	# !! be sure you undertand what "passive" and "active" mean in the context of FSRM before overriding !!
+	#	active sends email alerts and actively blocks access to files (good for production files, prevents any ransomware files, may still allow encryption of files)
+	#	passive sends email alerts but does not block access to files (good for honey pots so you can do forensics on encrypted files and money requests)
 	[bool]$RansomwareTemplateIsActive = $true,
 
 	# you need to set your own directory names, the bad guys can read this too, keep the '?' to match the leading sorting characters in the included sample zip file
+	# instruct your users to avoid these honey pot directories but they must be RW accessible to all
 	[string]$HoneyPotDirectoryNamePattern = "?ITDept_DoNotTamperWithContents",
 
 	# these are the email address FSRM variables used for notification when a file screen is triggered
@@ -100,7 +103,7 @@ Begin
 	# BEGIN - ADDITIONAL VARIABLES THAT NEED TO BE SET AND VALIDATED #
 	$EventLog = "Application"
 	$EventLoggingSource = "FSRM-AntiRansomwareScript"
-	$CurrentVersion = "2.2.1"
+	$CurrentVersion = "2.3.0"
 
 	$RansomeWareFileGroupName = "RansomwareFnamesAndExt"
 	# double check that this file is UTF-8, this embedded filters list contains names in Cyrillic, Portuguese, Spanish, Chinese, etc. see the top of this script
@@ -109,12 +112,13 @@ Begin
 	# to use this you just uncomment and populate it with your chosen file group exclusions
 	# the local json file method includes this information but it is an extension to, and not included with the Experiant JSON format
 	# this variable cannot be an empty string (""), either leave it undefined or populate it with meaningful information
+	# legacy note - these are file group Exclude Files, they are not the same as SkipList.txt entries
 	# $FnameExtExclude = @("this_is_just_a_dummy_placeholder_string","replace_it_with_meaningful_information_if_necessary","excluded_file_specs")
 
 	$LocalJsonFilePathAndPattern = $PSScriptRoot+"\"+"combined-"+$JSONfnamesubstring+"-????????_??????.json"
 	$HoneyPotFileGroupName = "HoneyPotAllFilesWildcard"
 	$HoneyPotFilters = @("*.*")
-	# the following exclusions are so common that I think it's OK to exclude them by default
+	# the following exclusions are so common that I think it's OK to exclude them by default, mostly dropped by curious internal folks, let's not lock them out for this
 	$HoneyPotExclusions = $("thumbs.db","desktop.ini")
 
 	$RansomwareTemplateName = "RansomwareFnamesAndExtsCheck"
@@ -237,16 +241,16 @@ Process
 		}
 
 	# look for a json file with updated filters and exceptions, if not found then just use the defaults set in the variables
-	If ($DownloadFiltersJson)
+	If ($LegacyDownloadFiltersJson)
 		{
-		$message = "`nInformation:`nAttempting downloading of ransomware filter list from $DownloadFiltersJsonURL`n"
+		$message = "`nInformation:`nAttempting legacy download of ransomware filter list from $LegacyDownloadFiltersJsonURL`n"
 		Write-Host $message
 		Write-EventLog -LogName $EventLog -Source $EventLoggingSource -Category 0 -EventID 2 -EntryType Information -Message $message
-		$FromJSONdata = Invoke-WebRequest $DownloadFiltersJsonURL | ConvertFrom-Json
+		$FromJSONdata = Invoke-WebRequest $LegacyDownloadFiltersJsonURL | ConvertFrom-Json
 		# testing $? does work here, but testing for null value is more comprehensive and tests json conversion too
 		If ($FromJSONdata -eq $null)
 			{
-			$message = "Script version: " + $CurrentVersion + "`nWarning:`nDownloading filters list from $DownloadFiltersJsonURL failed.`nUsing built-in defaults for now.`nMust be remediated for maximum protection.`n"
+			$message = "Script version: " + $CurrentVersion + "`nWarning:`nDownloading filters list from $LegacyDownloadFiltersJsonURL failed.`nUsing built-in defaults for now.`nMust be remediated for maximum protection.`n"
 			$message = $message +"`nParam block variables and values:"+ $localformattedparmstring
 			Write-Host -ForegroundColor Yellow -BackgroundColor Black $message
 			Write-EventLog -LogName Application -Source $EventLoggingSource -Category 0 -EventID 1004 -EntryType Warning -Message $message
@@ -254,13 +258,52 @@ Process
 		Else
 			{
 			# download json read succesfully, apply to file group
-			$message = "`nInformation:`nDownloading filters from $DownloadFiltersJsonURL succeeded.`n"
+			$message = "`nInformation:`nLegacy download of filters directly from $LegacyDownloadFiltersJsonURL succeeded.`n"
 			$message = $message + "`nDownloaded filters timestamp: " + $FromJSONdata.lastUpdated
 			Write-Host $message
 			Write-EventLog -LogName $EventLog -Source $EventLoggingSource -Category 0 -EventID 3 -EntryType Information -Message $message
 			Write-Host "`n"
 			$FnameExtFilters = $FromJSONdata.filters
-			}		
+			}
+		# now process IncludeList.txt and SkipList.txt, these are optional so just emit warning if missing, emit an info event upon success
+		$TempIncludeListTxtPath = $PSScriptRoot + "`\IncludeList.txt"
+		if (Test-Path -Path $TempIncludeListTxtPath)
+		    {
+		    # read the Include List file and appende to $FnameExtFilters
+			$FnameExtFilters = $FnameExtFilters + (Get-Content -LiteralPath $TempIncludeListTxtPath | ForEach-Object {$_.Trim()})
+			# dedupe
+			$FnameExtFilters = $FnameExtFilters | Select-Object -Unique
+			$message = "`nInformation:`nIncludeList.txt read successfully from $TempIncludeListTxtPath`n"
+			Write-Host $message
+			Write-EventLog -LogName $EventLog -Source $EventLoggingSource -Category 0 -EventID 12 -EntryType Information -Message $message
+			}
+		else
+		    {
+			$message = "Script version: " + $CurrentVersion + "`nWarning:`nDid not find an IncludeList.txt file.`n"
+			$message = $message +"`nParam block variables and values:"+ $localformattedparmstring
+			Write-Host -ForegroundColor Yellow -BackgroundColor Black $message
+			Write-EventLog -LogName Application -Source $EventLoggingSource -Category 0 -EventID 1007 -EntryType Warning -Message $message
+			}
+		
+		# remove SkipList.txt entries (equivalent of extended-data.allowed in the extended format JSON)
+		$TempSkipListTxtPath = $PSScriptRoot + "`\SkipList.txt"
+		if (Test-Path -Path $TempSkipListTxtPath)
+		    {
+			# read in the filters that should be allowed, the Skip List
+			$TempSkipList = Get-Content -LiteralPath $TempSkipListTxtPath | ForEach-Object {$_.Trim()}
+			# now remove them from $FnameExtFilters
+		    $FnameExtFilters = $FnameExtFilters | Where-Object {$TempSkipList -notcontains $_}
+			$message = "`nInformation:`nSkipList.txt read successfully from $TempSkipListTxtPath`n"
+			Write-Host $message
+			Write-EventLog -LogName $EventLog -Source $EventLoggingSource -Category 0 -EventID 13 -EntryType Information -Message $message
+		    }
+		else
+		    {
+			$message = "Script version: " + $CurrentVersion + "`nWarning:`nDid not find an IncludeList.txt file.`n"
+			$message = $message +"`nParam block variables and values:"+ $localformattedparmstring
+			Write-Host -ForegroundColor Yellow -BackgroundColor Black $message
+			Write-EventLog -LogName Application -Source $EventLoggingSource -Category 0 -EventID 1008 -EntryType Warning -Message $message
+		    }
 		}
 	Else
 		{

@@ -63,6 +63,7 @@ changes from version 1.0 to 2.x by Kurt Brown (KB):
 	additional error detection, warnings, and hard exits
 	The json file we're using is a super-set of the Experiant version
 		I've added an allowed file names section that I use with a Python script to merge and groom the Experiant data and additional sources that I've accumulated
+			may change the name of this one, it's kind of confusing
 		I've added an exception section too. This is used for the "Files to exclude" section of our fsrm file group.
 		Default location is for the json file to be in the same location as this script. You may override that.
 		Our filtered file names and extensions are more comprehensive that those on Experiant, but many are not verified and many are extended with additional wildcards.
@@ -122,6 +123,9 @@ changes from version 1.0 to 2.x by Kurt Brown (KB):
 	added $JSONfnamesubstring
 		you can put any word (without spaces) you like to match the same substring in your input JSON file name
 		allows for easy specification of custom JSON files, could be a client/company name, a server name, or whatever
+	2.3.0
+		added legacy handling of include list and skip list to section that already will download JSON data directly from source (currently Experiant)
+		renamed direct download to legacy download, this is really just to be campatible with how so many people already use the older w2008 compat scripts
 
 to do:
 	add option to triggered script to disable the user's account, ?maybe some permissions/account gotchas?
@@ -129,4 +133,4 @@ to do:
 		lack of command line parameter being passed should block all shares AND disable user, we should default to most restrictive options
 	convert the string-here to an array of strings for easier modification and nicer formatting in this script
 	write instructions on using multiple honey pot directory patterns
-	write instruction on dangers of using actual Administrator account, have a backdoor account that's never used but is active
+	write instruction on dangers of using actual Administrator account, should have a backdoor account that's never used but is active
