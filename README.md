@@ -1,7 +1,7 @@
 # FSRM-Anti-ransomware
 PowerShell and Python scripts to help you fight ransomware using both known filespecs and zero-day resistant honey traps.
 
-Works with Windows Server 2012 and above, Python 3.7.x and above, and PowerShell 4 and above. There is a way to make it work with PowerShell 3 but you'll have to edit the script and be certain you're logged in as admin. Rather than hack the script just install WMF 5.1. It's strongly suggested on Windows Server 2012 (r1), suggested for Windows 2012r2, and already installed for Windows 2016 and above.
+Works with Windows Server 2012 and above, Python 3.6.x and above, and PowerShell 4 and above. There is a way to make it work with PowerShell 3 but you'll have to edit the script and be certain you're logged in as admin. Rather than hack the script just install WMF 5.1. It's strongly suggested on Windows Server 2012 (r1), suggested for Windows 2012r2, and already installed for Windows 2016 and above.
 
 I just uploaded these files and, as is typical in many software development projects, I haven't written the documentation yet. I'll get notes written and uploaded very soon, but in the meantime send me a message and I'll get you going. Also be sure to read all those usage notes at the top of the FSRM-Anti-ransomware.ps1.
 
