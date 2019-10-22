@@ -11,9 +11,9 @@ Getting Started:
 
 Download this repository as a zip file. Unzip to a directory named "C:\Program Files\FSRM Anti-ransomware"
 
-Install Python 3.7.x or higher for "all users" and make sure it's on the path.
+Install Python 3.6.x or higher for "all users" and make sure it's on the path. Python 3.7 and above is recommended.
 
-As Administrator - open a PowerShell prompt, change to the new directory, and run AntiransomwareFiltersMerge.py.
+As Administrator - open a PowerShell prompt, change to the new directory, and run AntiransomwareFiltersMerge.py to update your combined-extended... JSON file with the latest ransomware filespecs from Experiant.
 
 Still as Adminstrator - run FSRM-Anti-ransomware.ps1 and follow the prompts for a basic installation. You may use customized presets and place them in the NameHere-Custom-PreLoad-FSRM-Anti-ransomware.ps1 script so you don't have to type all that out every time.
 
@@ -23,4 +23,4 @@ Be sure to keep a close eye on these project files. This is under active develop
 
 Jason Kreisler
 
-18 Oct 2019
+22 Oct 2019
