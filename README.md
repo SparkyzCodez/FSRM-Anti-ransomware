@@ -1,3 +1,6 @@
+
+Update note 23Oct2019:
+I will be renaming the JSON extended data attribute called "allowed" because it is poorly named. The AntiransomwareFiltersMerge.py will update your JSON file automatically. No impact at all for the FSRM-Anti-ransomware.ps1.
 # FSRM-Anti-ransomware
 PowerShell and Python scripts to help you fight ransomware using both known filespecs and zero-day resistant honey traps.
 
