@@ -6,9 +6,9 @@ Run with -h parameter for usage details.
 Notes:
 This script assumes that the filters will be applied to a case INSENSITIVE file system using Microsoft Windows' FSRM.
 The regex optimization section of this script is case INSENSITIVE (in two places). Everything else in this script is case sensitive.
-Filters processing is lossless. Once a filter is added it will never be removed. You have these options for recourse.
-    1. match with regex and replace with an empty string (best, easiest)
-    2. use the --reloadfromsecondaryfilters option, the secondary may still contain the filter you want to remove so you may need option 1 anyway
+Filters processing is lossless. Once a filespec is added to "filters" will never be removed. You have these options for recourse.
+    1. EITHER add the exact matching string to extended-data.excludefromfilters OR match with regex and replace with an empty string (best, easiest)
+    2. start over and use the --reloadfromsecondaryfilters option, the secondary may still contain the filter you want to remove so you may need option 1 anyway
     3. build an empty skeleton JSON file and load it with a fresh set of filters AND manage your secondary input filters manually. (hardest)
 regex whole string matches may use empty strings "" as their replacement
 pretty print formatted JSON will sometimes fail on PowerShell v4 and below Get-Content when piplined to ConvertFrom-Json
@@ -24,7 +24,7 @@ all string operations are Unicode conforming
 all output files (JSON and text files) are encoded in UTF-8 Unicode but with no BOM marker
   (a BOM should never be necessary for Utf-8)
 """
-# version 3.1.1 - minor bugfix runtimecontrol to runcontrol in defs
+# version 3.1.1 - minor bugfix runtimecontrol to runcontrol in defs, primary JSON attribute name changes, clarify description + notes at top
 
 import string, json, re, urllib, urllib.request, datetime, pathlib, copy, argparse, stat, logging
 
@@ -232,25 +232,25 @@ def IntializeData(runcontrol:dict)->dict:
   returns - initialized but otherwise empty ouput JSON dictonary
   '''
   runcontrol['log'].debug('initializing application data')
-  EXTENDED_JSON_VERSION = 3   # format version of JSON ouput file, change this any time the skeleton format is changed
+  EXTENDED_JSON_VERSION = 3.1   # format version of JSON ouput file, change this any time the skeleton format is changed
 
   skeleton = dict.fromkeys(['api','lastUpdated','exceptions','filters','extended-data'])
   skeleton['api'] = dict.fromkeys(['format','file_group_count','extended-info'])
   skeleton['api']['extended-info'] = dict.fromkeys(['extended-version','SecondaryLastUpdated','thisfilename','optimizationwarning','thisfileoptimized'])
-  skeleton['extended-data'] = dict.fromkeys(['allowed','deltasinceprev','regexsubstringsubs','regexsummarizations','opttracking'])
-  skeleton['extended-data']['opttracking'] = dict.fromkeys(['addedfilters','removedfilters'])
+  skeleton['extended-data'] = dict.fromkeys(['excludefromfilters','deltasinceprev','regexsubstringsubs','regexsummarizations','losslesstracking'])
+  skeleton['extended-data']['losslesstracking'] = dict.fromkeys(['addedfilters','removedfilters'])
 
   skeleton['api']['format'] = 'json'
   skeleton['api']['file_group_count'] = 0
   skeleton['api']['extended-info']['extended-version'] = EXTENDED_JSON_VERSION
   skeleton['api']['extended-info']['SecondaryLastUpdated'] = ''
   skeleton['api']['extended-info']['thisfilename'] = runcontrol['opjsonpath'].name
-  skeleton['api']['extended-info']['optimizationwarning'] = 'Never manually edit the filters list in this file if the data is optimized! Use --groomonly to un-optimize first. Never manually edit opttracking.addedfilters or opttracking.removedfilters; data loss is guaranteed if you do.'
+  skeleton['api']['extended-info']['optimizationwarning'] = 'Never manually edit the filters list in this file if the data is optimized! Use --groomonly to un-optimize first. Never manually edit losslesstracking.addedfilters or losslesstracking.removedfilters; data loss is guaranteed if you do.'
   skeleton['api']['extended-info']['thisfileoptimized'] = False
   skeleton['lastUpdated'] = runcontrol['nowstringzulu']
   skeleton['exceptions'] = []
   skeleton['filters'] = []
-  skeleton['extended-data']['allowed'] = []
+  skeleton['extended-data']['excludefromfilters'] = []
   skeleton['extended-data']['deltasinceprev'] = []
   # list of dictionaries
   skeleton['extended-data']['regexsubstringsubs'] = []
@@ -258,8 +258,8 @@ def IntializeData(runcontrol:dict)->dict:
   # list of dictionaries
   skeleton['extended-data']['regexsummarizations'] = []
   skeleton['extended-data']['regexsummarizations'].append(dict())
-  skeleton['extended-data']['opttracking']['addedfilters'] = []
-  skeleton['extended-data']['opttracking']['removedfilters'] = []
+  skeleton['extended-data']['losslesstracking']['addedfilters'] = []
+  skeleton['extended-data']['losslesstracking']['removedfilters'] = []
   runcontrol['log'].debug('output JSON data structure initialized')
   return skeleton
 
@@ -371,14 +371,21 @@ def CombinedDataProcessing(opjson:dict, pconstjsondata:dict, sconstjsondata:dict
   runcontrol['log'].debug('merging and processing all data')
 
   if pconstjsondata['api']['extended-info']['extended-version'] != opjson['api']['extended-info']['extended-version']:
-    runcontrol['log'].error('primary input JSON format does not match current version ' + str(opjson['api']['extended-info']['extended-version']) +' format')
-    raise ValueError
+    if pconstjsondata['api']['extended-info']['extended-version'] == 3:
+      #update JSON data, simply copy allowed to new attribute, only a name update - no transform, we'll just leave the old key alone because we'll never use it again
+      pconstjsondata['extended-data']['excludefromfilters'] = pconstjsondata['extended-data']['allowed']
+      del(pconstjsondata['extended-data']['allowed'])
+      pconstjsondata['extended-data']['losslesstracking'] = pconstjsondata['extended-data']['opttracking']  # shallow copy is fine here
+      del(pconstjsondata['extended-data']['opttracking'])
+    else:
+      runcontrol['log'].error('primary input JSON format is an unsupported version ' + str(opjson['api']['extended-info']['extended-version']) +' format')
+      raise ValueError
 
   # from this point forward we assume that the data is in the latest JSON format
   # copy the data that is never changed by this program, it is user edited in the JSON and static here
   # we need allowed, exceptions, both reggy 
-  opjson['extended-data']['allowed'].extend(pconstjsondata['extended-data']['allowed'])
-  opjson['extended-data']['allowed'].sort()
+  opjson['extended-data']['excludefromfilters'].extend(pconstjsondata['extended-data']['excludefromfilters'])
+  opjson['extended-data']['excludefromfilters'].sort()
   opjson['exceptions'].extend(pconstjsondata['exceptions'])
   opjson['exceptions'].sort()
   opjson['extended-data']['regexsubstringsubs'] = copy.deepcopy(pconstjsondata['extended-data']['regexsubstringsubs']) # nested data, use deepcopy
@@ -398,15 +405,15 @@ def CombinedDataProcessing(opjson:dict, pconstjsondata:dict, sconstjsondata:dict
       raise
     else:
       # unwind previous optimizations, if any
-      if len(pconstjsondata['extended-data']['opttracking']['removedfilters']) > 0 :
+      if len(pconstjsondata['extended-data']['losslesstracking']['removedfilters']) > 0 :
         # defensively dedupe the added filters, shouldn't need to do this UNLESS someone edits the file, dupes will blow up
-        localaddedlist = list(dict.fromkeys(pconstjsondata['extended-data']['opttracking']['addedfilters']))
+        localaddedlist = list(dict.fromkeys(pconstjsondata['extended-data']['losslesstracking']['addedfilters']))
         # remove previously added optimized filters first, then put original filters back, filters list will be lossless of original values
         # un-add the added filters first in case there was a collision with the removed filters, assumes filters list was deduped
         for filterstring in localaddedlist:
           opjson['filters'].remove(filterstring)
         # un-remove - now restore all previously removed filters, includes allowed filters that were removed
-        opjson['filters'].extend(pconstjsondata['extended-data']['opttracking']['removedfilters'])
+        opjson['filters'].extend(pconstjsondata['extended-data']['losslesstracking']['removedfilters'])
         opjson['filters'] = (list(dict.fromkeys(opjson['filters'])))
   else:
     runcontrol['log'].warning('-refreshsecondary option specified, primary JSON filters will not be used, all other primary JSON data is carried over')
@@ -431,9 +438,9 @@ def CombinedDataProcessing(opjson:dict, pconstjsondata:dict, sconstjsondata:dict
   runcontrol['log'].info(str(len(opjson['filters'])) + ' merged and deduped filters pre-optimization')
   
   # process allowed fspecs, remove from filters, add to removed
-  for filterstring in opjson['extended-data']['allowed']:
+  for filterstring in opjson['extended-data']['excludefromfilters']:
     if filterstring in opjson['filters']:
-      opjson['extended-data']['opttracking']['removedfilters'].append(filterstring)
+      opjson['extended-data']['losslesstracking']['removedfilters'].append(filterstring)
       opjson['filters'].remove(filterstring)
   runcontrol['log'].info(str(len(opjson['filters'])) + ' filters after processing allowed fspecs')
 
@@ -446,7 +453,7 @@ def CombinedDataProcessing(opjson:dict, pconstjsondata:dict, sconstjsondata:dict
   opjson['filters'].sort()
   opjson['api']['file_group_count'] = len(opjson['filters'])
   # in case allowed fspecs were used we should sort the removed filters
-  opjson['extended-data']['opttracking']['removedfilters'].sort()
+  opjson['extended-data']['losslesstracking']['removedfilters'].sort()
   runcontrol['log'].info(str(len(opjson['filters'])) + ' filters for final ouput (post-optimization if any)')
 
   # generate a list of filters that are new since the last run
@@ -462,7 +469,7 @@ def CombinedDataProcessing(opjson:dict, pconstjsondata:dict, sconstjsondata:dict
   # if we're forcing output of new JSON then we must write, the user may just want a new datestamp or whatever
   # we could simplify this boolean, but let's shoot for clarity instead (non-inverted output NAND)
   if (not runcontrol['cmdlineargs'].groomingonly) and (not runcontrol['cmdlineargs'].force):
-    if (opjson['filters'] == pconstjsondata['filters']) and (opjson['exceptions'] == pconstjsondata['exceptions']) and (opjson['extended-data']['allowed'] == pconstjsondata['extended-data']['allowed']):
+    if (opjson['filters'] == pconstjsondata['filters']) and (opjson['exceptions'] == pconstjsondata['exceptions']) and (opjson['extended-data']['excludefromfilters'] == pconstjsondata['extended-data']['excludefromfilters']):
       runcontrol['log'].warning('Data files will not be written - new filters, allowed, and exceptions all match original input')
       runcontrol['cmdlineargs'].dryrun = True
   runcontrol['log'].debug('data processing completed')
@@ -544,9 +551,9 @@ def FiltersOptimization(jsondat:dict,runcontrol:dict)->None:
         denyopt = True
         optwarnings.append('stardotstar-prevent')
       # make sure we didn't regenerate an allowed fspec
-      elif fspecstring in jsondat['extended-data']['allowed']:
+      elif fspecstring in jsondat['extended-data']['excludefromfilters']:
         denyopt = True
-        optwarnings.append('in-allowed')
+        optwarnings.append('in-excludefromfilters')
       # test for optimization to same, dupe
       elif (astring == fspecstring):
         denyopt = True
@@ -564,23 +571,23 @@ def FiltersOptimization(jsondat:dict,runcontrol:dict)->None:
     # if the fspec has been optimized and it didn't trigger a deny optimization
     if optflag and not denyopt:
       runcontrol['log'].debug(astring + ' >-optimized to-> ' + fspecstring + '  (matched regex: ' + reggymatchesmsg +')')
-      jsondat['extended-data']['opttracking']['removedfilters'].append(astring)
+      jsondat['extended-data']['losslesstracking']['removedfilters'].append(astring)
       if len(fspecstring) > 0: # don't add if the optimization is an empty string
-        jsondat['extended-data']['opttracking']['addedfilters'].append(fspecstring)
+        jsondat['extended-data']['losslesstracking']['addedfilters'].append(fspecstring)
     # end of the optimization loop
 
-  # only optimization uses jsondat['extended-data']['opttracking']['addedfilters'], if there are any items in the list then we found something to optimize
-  if len(jsondat['extended-data']['opttracking']['addedfilters']) > 0:
+  # only optimization uses jsondat['extended-data']['losslesstracking']['addedfilters'], if there are any items in the list then we found something to optimize
+  if len(jsondat['extended-data']['losslesstracking']['addedfilters']) > 0:
     # we expect lots of dupes in the added list because one of the goals is to summarize a bunch of those filters, dedupe before we do anything
-    jsondat['extended-data']['opttracking']['addedfilters'] = list(dict.fromkeys(jsondat['extended-data']['opttracking']['addedfilters']))
-    jsondat['extended-data']['opttracking']['addedfilters'].sort()
+    jsondat['extended-data']['losslesstracking']['addedfilters'] = list(dict.fromkeys(jsondat['extended-data']['losslesstracking']['addedfilters']))
+    jsondat['extended-data']['losslesstracking']['addedfilters'].sort()
     # sort the removed so they're pretty
-    jsondat['extended-data']['opttracking']['removedfilters'].sort()
-    # there should be no dupes in the removed list, processing the 'allowed' is not an optimization and should have already been done, no need to dedupe here
-    for astring in jsondat['extended-data']['opttracking']['removedfilters']:
+    jsondat['extended-data']['losslesstracking']['removedfilters'].sort()
+    # there should be no dupes in the removed list, processing the 'excludefromfilters' is not an optimization (1 to 1 relationship) and should have already been done, no need to dedupe here
+    for astring in jsondat['extended-data']['losslesstracking']['removedfilters']:
       if astring in jsondat['filters']: jsondat['filters'].remove(astring)
     # now we just add the optimations and sort
-    jsondat['filters'].extend(jsondat['extended-data']['opttracking']['addedfilters'])
+    jsondat['filters'].extend(jsondat['extended-data']['losslesstracking']['addedfilters'])
     jsondat['filters'].sort()
 
   # optimization leaves lots of dupes in the filters and addedfilters, dedupe now that we're done
