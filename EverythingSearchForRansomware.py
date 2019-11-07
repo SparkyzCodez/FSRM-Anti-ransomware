@@ -5,7 +5,7 @@ from time import sleep
 '''This application will read in a JSON file containing Anti-ransomware filters and search all local NTFS and ReFS drives for matching files.
 Notes:
   all local NTFS and ReFS drives will be searched
-  a dictionary that maps directly written to JSON is our primary internal data bucket, but writing to JSON is not mandatory
+  a dictionary that maps directly written to JSON is our primary internal data bucket, but writing output to a JSON file is not mandatory
   no data files are written by default
   all matches will go to stdout
   input JSON file uses the same wildcard matching as AntiransomwareFiltersMerge.py but may be overridden
@@ -17,9 +17,11 @@ Notes:
   Everything64.dll
     only supporting 64 bit version, no provision for 32 bit since this is a server oriented app, if you specify a 32 bit version then we'll try but it's totally unsupported
 '''
+# I think these will be the right MIME types: application/json, text/csv, and either text/plain (RFC5147) or nothing at all for plain text
+
 # initialize psuedo constants
 INTERNAL_NAME = 'EverythingSearchForRansomware.py'
-VERSION = '1.1.0'
+VERSION = '1.1.3'
 DEBUG_SIMULATATE_COMMAND_LINE = False
 
 #defines for Everything SDK
@@ -44,7 +46,7 @@ EVERYTHING_REQUEST_HIGHLIGHTED_FULL_PATH_AND_FILE_NAME = 0x00008000
 if DEBUG_SIMULATATE_COMMAND_LINE:
   print ('\nXXXXX: Warning - debugging command line override is enabled in source code, replaces command line arguments pre-parsing :XXXXX')
   import sys
-  sys.argv = [sys.argv[0], '-v', '--donotkill', '--reporttext', '--jsonresults', '--csvresults', '-n','bosco']
+  sys.argv = [sys.argv[0], '-v', '--donotkill', '--reporttext', '--jsonresults', '--csvresults', '-n','bosco', '-h']
   # sys.argv = [sys.argv[0], '-V']
   # sys.argv = [sys.argv[0], '-n', 'bosco']
   # sys.argv = [sys.argv[0], '-d','-o','-w','C:\\Temp\\scratch']
@@ -77,17 +79,17 @@ def IntializeApp()->dict:
   runcontrol['log'].addHandler(consolehandler)
   
   # command line parsing
-  argsparser = argparse.ArgumentParser(allow_abbrev=False, description='Fighting ransomware everyday: This program reads in a combined JSON file with only "filters" or an extended JSON file with both "filters" and "exceptions" lists of file specs, and searches local hard drives for matching files using the same methodology as Microsoft File Server Resource Manager file screening. By default this program lists all files that match "filters" except those that also match "exceptions". Optionally you may find all files without processing the exceptions. This is also a great tool to test filter optimizations before putting them in production.')
+  argsparser = argparse.ArgumentParser(allow_abbrev=False, description='Fighting ransomware everyday: This program reads in a combined JSON file with only "filters" or an extended JSON file with both "filters" and "exceptions" lists of file specs, and searches local hard drives for matching files using the same methodology as Microsoft File Server Resource Manager file screening. By default this program lists all files that match "filters" except those that also match "exceptions". Only the JSON output has a list of all file matches pre-exceptions processing. You can use this tool to test filter optimizations before putting them in production too.')
 
   argsparser.add_argument('-n', '--fnamesubstring', type=str, default='extended', help = 'substring for both for wildcard file name matching of input primary JSON file as well as naming the output data files, default substring is "extended", format example: "combined-extended-20191031_123456.json"')
   argsparser.add_argument('-p', '--primaryjsonoverride', type=str,help='primary JSON input file, overrides default primary file found through wildcard matching with fnamesubstring, use full file path name, does not affect output data file names')
   argsparser.add_argument('-w', '--workingdirectory', type=str, default='', help='working directory for source and destination of files, if not specified then uses the OS current working directory')
 
-  argsparser.add_argument('-c', '--csvresults', default=False, action='store_true', help = 'write CSV results file, processed data with "exceptions" excluded unless --noexceptions was specified')
-  argsparser.add_argument('-r', '--reporttext', default=False, action='store_true', help = 'write a text report (identical to data displayed to screen), processed data with "exceptions" excluded unless --noexceptions was specified')
+  argsparser.add_argument('-c', '--csvresults', default=False, action='store_true', help = 'write CSV results file, reports FSRM-like matches and exceptions matches, see JSON output for all raw matches')
+  argsparser.add_argument('-r', '--reporttext', default=False, action='store_true', help = 'write a text report (identical to data displayed to screen), reports FSRM-like matches and exceptions matches, see JSON output for all raw matches')
+  argsparser.add_argument('-s', '--reporttoscreen', default=False, action='store_true', help = 'display text report to screen (identical to data in report text), shows FSRM-like matches and exceptions matches, see JSON output for all raw matches')
   # argsparser.add_argument('-e', '--emailresults', type=str, default='', help='sends email with report text results in the body, only works with non-authenticated email, you may have more than one destination email address - just add them to the end, config example: "smtp.example.org,25,evsnotification@example.org,destmail1@example.org,destmail2@example.org"')
-  # argsparser.add_argument('-x', '--noexceptions', default=False, action='store_true', help = 'this will find all files matching input JSON "filters" without processing "exceptions", by default files that match "exceptions" will not be included in CSV and text results (JSON output always lists both filter and exception matches)')
-  argsparser.add_argument('-j', '--jsonresults', default=False, action='store_true', help = 'JSON output includes "filters-allhits" and "exceptions-allhits", and an additional attribute "filters-FSRMmatched" that always has matching "exceptions" removed similar to FSRM, the --noexceptions option is always ignored')
+  argsparser.add_argument('-j', '--jsonresults', default=False, action='store_true', help = 'JSON output contains "filters-FSRMmatched" "exceptions-allhits" and "filters-allhits" (all matches pre exclusions processing)')
 
   argsparser.add_argument('-d', '--donotkill', default=False, action='store_true', help = 'leave Everything.exe running after we\'re finished searching')
   argsparser.add_argument('--dbstarttimeout', default=120, type=int, help = 'in seconds, timeout wait for the Everything engine to start, default is 2 minutes which is easily long enough for 5 million or fewer files')
@@ -217,8 +219,8 @@ def IntializeData(runcontrol:dict)->dict:
   skeleton['api']['extended-info']['SourceWasOptimized'] = False
   skeleton['lastUpdated'] = runcontrol['nowstringzulu']
   skeleton['filters-FSRMmatched'] = {}
-  skeleton['filters-allhits'] = {}
   skeleton['exceptions-allhits'] = {}
+  skeleton['filters-allhits'] = {}
   runcontrol['log'].debug('output JSON data structure initialized')
   return skeleton
 
@@ -374,7 +376,7 @@ def EvsSearch(opjson:dict, ipjson:dict, runcontrol:dict)->dict:
   for fspec in ipjson['filters']:
     # setup the query
     hitlist = []
-    runcontrol['evs'].Everything_SetSearchW('utf8:case:file:noregex:ww:wfn:"'+fspec+'"')
+    runcontrol['evs'].Everything_SetSearchW('utf8:nocase:file:noregex:ww:wfn:"'+fspec+'"')
     runcontrol['evs'].Everything_SetRequestFlags(EVERYTHING_REQUEST_FILE_NAME | EVERYTHING_REQUEST_PATH)
 
     #execute the query
@@ -401,7 +403,7 @@ def EvsSearch(opjson:dict, ipjson:dict, runcontrol:dict)->dict:
   for fspec in ipjson['exceptions']:
     # setup the query
     hitlist = []
-    runcontrol['evs'].Everything_SetSearchW('utf8:case:file:noregex:ww:wfn:"'+fspec+'"')
+    runcontrol['evs'].Everything_SetSearchW('utf8:nocase:file:noregex:ww:wfn:"'+fspec+'"')
     runcontrol['evs'].Everything_SetRequestFlags(EVERYTHING_REQUEST_FILE_NAME | EVERYTHING_REQUEST_PATH)
 
     #execute the query
@@ -496,7 +498,7 @@ def WriteFlatCSV(opjson:dict, runcontrol:dict)->None:
     files are encoded with non-escaped utf-8 Unicode, no BOM 
     one text file has one filter per line
     the other text file has filters in a format specifically for PowerShell scripts, wrapped in double quotes and comma seperated
-    to do - could a join of some sort to work for the script format? so much to learn   
+    to do - could a join of some sort work for the script format? so much to learn   
   Inputs:
     JSON dictionary
     runtime control baton
@@ -545,7 +547,7 @@ def ReportTextGen(opjson:dict, runcontrol:dict)->None:
   hitlist.append('Input source was optimized: ' + str(opjson['api']['extended-info']['SourceWasOptimized']) + '\n')
 
   if len(opjson['filters-FSRMmatched']) > 0:
-    hitlist.append('\n-- filters-FSRMmatched' + ' - Matching filters found --\n')
+    hitlist.append('\n-- filters-FSRMmatched' + ' - Matching FSRM filters excluding Exceptions matches --\n')
     for fspec in opjson['filters-FSRMmatched']:
       hitlist.append(fspec + '\n')
       for fname in opjson['filters-FSRMmatched'][fspec]:
@@ -555,7 +557,7 @@ def ReportTextGen(opjson:dict, runcontrol:dict)->None:
     hitlist.append('\n-- filters-FSRMmatched' + ' - No matching filters found --\n\n')
 
   if len(opjson['exceptions-allhits']) > 0:
-    hitlist.append('\n-- exceptions-allhits' + ' - Matching filters found --\n')
+    hitlist.append('\n-- exceptions-allhits' + ' - only Exceptions filter matches --\n')
     for fspec in opjson['exceptions-allhits']:
       hitlist.append(fspec + '\n')
       for fname in opjson['exceptions-allhits'][fspec]:
@@ -638,7 +640,8 @@ try:
   runtimecontrol = IntializeApp()
   opjsondata = IntializeData(runtimecontrol)
   EverythingInit(runtimecontrol)
-  EvsSearch(opjsondata, FindLoadPrimaryJSON(runtimecontrol), runtimecontrol)
+  ipjsondata = FindLoadPrimaryJSON(runtimecontrol)
+  EvsSearch(opjsondata, ipjsondata, runtimecontrol)
   FiltersScreen(opjsondata, runtimecontrol)
   
   if runtimecontrol['cmdlineargs'].jsonresults: # write JSON
@@ -650,7 +653,7 @@ try:
     ReportTextGen(opjsondata, runtimecontrol)
     if runtimecontrol['cmdlineargs'].reporttext:
       WriteReportText(runtimecontrol)
-    if runtimecontrol['cmdlineargs'].verbose:
+    if runtimecontrol['cmdlineargs'].reporttoscreen:
       WriteTextToDisplay(runtimecontrol)
   if runtimecontrol['cmdlineargs'].rotatefilescount > 0:
       RotateFiles(runtimecontrol)
