@@ -1,6 +1,9 @@
+Update note 7Nov2019:
+Fixed a case sensitivity bug in EverythingSearchForRansomware.py. Change from case sensitive search to case insensitive so that it more closely matches how Windows FSRM matches file names.
 
 Update note 23Oct2019:
 I have renamed the JSON extended data attributes called "allowed" and "opttracking" because they are poorly named. The AntiransomwareFiltersMerge.py will update your JSON file automatically. No impact at all for the FSRM-Anti-ransomware.ps1 because it never reads the extended data.
+
 # FSRM-Anti-ransomware
 PowerShell and Python scripts to help you fight ransomware using both known filespecs and zero-day resistant honey traps.
 
