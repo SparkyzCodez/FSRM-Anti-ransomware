@@ -1,5 +1,5 @@
 Update note 7Nov2019:
-Fixed a case sensitivity bug in EverythingSearchForRansomware.py. Change from case sensitive search to case insensitive so that it more closely matches how Windows FSRM matches file names.
+Fixed a case sensitivity bug in EverythingSearchForRansomware.py. Change from case sensitive search to case insensitive so that it more closely matches how Windows FSRM matches file names. This did not impact the actual FSRM file screening in any way.
 
 # FSRM-Anti-ransomware
 PowerShell and Python scripts to help you fight ransomware using both known filespecs and zero-day resistant honey traps.
