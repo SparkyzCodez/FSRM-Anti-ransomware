@@ -12,7 +12,7 @@ process
     # spaces in the ScriptToRun string are a problem because the string may already have spaces wrapped in single quotes.
     # This is the work around. We're going old school and setting the cwd.
     Set-Location $PSScriptRoot
-    $ScriptToRun = ".\Install-and-Update-FSRM-Anti-ransomware.ps1 $ScriptParameters"
+    $ScriptToRun = ".\FSRM-Anti-ransomware.ps1 $ScriptParameters"
     Write-Output "`nLoader (this) script: $PSCommandPath`n`nScript to call: $ScriptToRun`n"
     Invoke-Expression -Command "$ScriptToRun"
     }
