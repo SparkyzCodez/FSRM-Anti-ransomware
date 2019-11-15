@@ -23,7 +23,7 @@ The FSRM-Anti-ransomware.ps1 script writes detailed messages to the Windows Appl
 
 Getting Started:
 
-Download this repository as a zip file. Unzip to a directory named "C:\Program Files\FSRM Anti-ransomware"
+Download this repository as a zip file. Unzip to a directory named "C:\Program Files\FSRM-Anti-ransomware"
 
 Install Python 3.6.x or higher for "all users" and make sure it's on the path. Python 3.7 and above is recommended.
 
