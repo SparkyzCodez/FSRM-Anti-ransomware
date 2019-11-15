@@ -1,5 +1,6 @@
 Update note 15Nov2019:
 Corrected main script name in custom loader template script.
+
 Update note 7Nov2019:
 Fixed a case sensitivity bug in EverythingSearchForRansomware.py. Change from case sensitive search to case insensitive so that it more closely matches how Windows FSRM matches file names. This did not impact the actual FSRM file screening in any way.
 
