@@ -1,4 +1,4 @@
-# This script must be in the same directory as Install-and-Update-FSRM-Anti-ransomware.ps1
+# This script must be in the same directory as FSRM-Anti-ransomware.ps1
 begin
     {
     # Edit this variable with the parameters you want to use every time. Use this loader in the task scheduler.
