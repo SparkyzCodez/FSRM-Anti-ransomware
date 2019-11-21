@@ -1,3 +1,6 @@
+Update note 21Nov2019:
+Documentation is well under way. I have a bunch of screen caps to sort through, text to write, and some howto videos. The first video is for Windows 2012(r1) users who need to update their PowerShell. And away we go...
+
 Update note 15Nov2019:
 Corrected main script name in custom loader template script.
 
