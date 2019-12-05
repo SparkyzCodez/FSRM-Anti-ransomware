@@ -22,7 +22,7 @@ Notes:
 # initialize psuedo constants
 INTERNAL_NAME = 'EverythingSearchForRansomware.py'
 VERSION = '1.1.4'
-DEBUG_SIMULATATE_COMMAND_LINE = True
+DEBUG_SIMULATATE_COMMAND_LINE = False
 
 #defines for Everything SDK
 EVERYTHING_REQUEST_FILE_NAME = 0x00000001
