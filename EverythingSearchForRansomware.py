@@ -21,8 +21,8 @@ Notes:
 
 # initialize psuedo constants
 INTERNAL_NAME = 'EverythingSearchForRansomware.py'
-VERSION = '1.1.3'
-DEBUG_SIMULATATE_COMMAND_LINE = False
+VERSION = '1.1.4'
+DEBUG_SIMULATATE_COMMAND_LINE = True
 
 #defines for Everything SDK
 EVERYTHING_REQUEST_FILE_NAME = 0x00000001
@@ -46,7 +46,7 @@ EVERYTHING_REQUEST_HIGHLIGHTED_FULL_PATH_AND_FILE_NAME = 0x00008000
 if DEBUG_SIMULATATE_COMMAND_LINE:
   print ('\nXXXXX: Warning - debugging command line override is enabled in source code, replaces command line arguments pre-parsing :XXXXX')
   import sys
-  sys.argv = [sys.argv[0], '-v', '--donotkill', '--reporttext', '--jsonresults', '--csvresults', '-n','bosco', '-h']
+  sys.argv = [sys.argv[0], '-v', '--donotkill', '--reporttext', '--jsonresults', '--csvresults', '-n','pinkard']
   # sys.argv = [sys.argv[0], '-V']
   # sys.argv = [sys.argv[0], '-n', 'bosco']
   # sys.argv = [sys.argv[0], '-d','-o','-w','C:\\Temp\\scratch']
@@ -648,7 +648,7 @@ try:
     WriteOpJSON(opjsondata, runtimecontrol)
   if runtimecontrol['cmdlineargs'].csvresults: # write CSV
     WriteFlatCSV(opjsondata, runtimecontrol)
-  if runtimecontrol['cmdlineargs'].reporttext or runtimecontrol['cmdlineargs'].verbose:
+  if runtimecontrol['cmdlineargs'].reporttext or runtimecontrol['cmdlineargs'].reporttoscreen:
     # write text report
     ReportTextGen(opjsondata, runtimecontrol)
     if runtimecontrol['cmdlineargs'].reporttext:
