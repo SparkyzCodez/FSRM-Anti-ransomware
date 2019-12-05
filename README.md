@@ -1,11 +1,8 @@
+Update note 5Dec2019:
+Cosmetic bug fix to EverythingSearchForRansomware.py. Was only printing results to screen if writing the text report was also enabled.
+
 Update note 21Nov2019:
 Documentation is well under way. I have a bunch of screen caps to sort through, text to write, and some howto videos. The first video is for Windows 2012(r1) users who need to update their PowerShell. And away we go...
-
-Update note 15Nov2019:
-Corrected main script name in custom loader template script.
-
-Update note 7Nov2019:
-Fixed a case sensitivity bug in EverythingSearchForRansomware.py. Change from case sensitive search to case insensitive so that it more closely matches how Windows FSRM matches file names. This did not impact the actual FSRM file screening in any way.
 
 # FSRM-Anti-ransomware
 PowerShell and Python scripts to help you fight ransomware using both known filespecs and zero-day resistant honey traps.
