@@ -2,7 +2,8 @@
 
 !!!!
 Update 6Dec2019
-please note: This is currently incomplete, it is in progress but I didn't want to hold it back until it's done. The completed sections are rough but I think they're complete. Comments are very welcome.
+please note: This is currently incomplete, it is in progress but I didn't want to hold it back until it's done. The completed sections are rough but I think they're complete. Comments are very welcome. And news flash: I haven't run the spell checker yet. Be kind. ;-)
+
 !!!!
 
 [placeholder link to videos](https://github.com/SparkyzCodez/FSRM-Anti-ransomware)
@@ -10,7 +11,7 @@ please note: This is currently incomplete, it is in progress but I didn't want t
 ## Prerequisites - Python 3.7 or higher and PowerShell 4 or higher
 The actual steps that I use to configure some of these prerequisites are in seperate instructions.
 
-- You must have Administrator priveleges and all PowerShell command prompts must be run as Administrator
+- You must have Administrator privileges and all PowerShell command prompts must be run as Administrator
 
 - Python must be installed for all users and it should be on the path.
 
