@@ -1,3 +1,6 @@
+Update note 6Dec2019:
+The rough and in-progress installation and configuration instructions are under way and uploaded to Git. Look for the file named *FSRM-Anti-ransomware Installation and Scheduler Setup.md*.
+
 Update note 5Dec2019:
 Cosmetic bug fix to EverythingSearchForRansomware.py. Was only printing results to screen if writing the text report was also enabled.
 
