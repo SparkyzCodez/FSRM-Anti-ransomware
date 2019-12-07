@@ -1,11 +1,8 @@
-Update note 6Dec2019:
+Update note 7Dec2019:
 The rough and in-progress installation and configuration instructions are under way and uploaded to Git. Look for the file named *FSRM-Anti-ransomware Installation and Scheduler Setup.md*.
 
 Update note 5Dec2019:
 Cosmetic bug fix to EverythingSearchForRansomware.py. Was only printing results to screen if writing the text report was also enabled.
-
-Update note 21Nov2019:
-Documentation is well under way. I have a bunch of screen caps to sort through, text to write, and some howto videos. The first video is for Windows 2012(r1) users who need to update their PowerShell. And away we go...
 
 # FSRM-Anti-ransomware
 PowerShell and Python scripts to help you fight ransomware using both known filespecs and zero-day resistant honey traps.
