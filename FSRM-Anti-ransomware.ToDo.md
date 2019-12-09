@@ -8,3 +8,5 @@ create triggered script or add to existing to lock out offending user's AD accou
 convert String Here embedded scrip to stand alone script that get's copied to the triggered scripts directory - KB approved
 
 document how to use multiple versions of this script simultaneously, useful for multiple honey pot names, it's not hard but you have to watch your details - KB approved
+
+Add disk space quota capability to the honey pots - KB approved
