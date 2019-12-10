@@ -21,7 +21,7 @@ The actual steps that I use to configure some of these prerequisites are in sepa
 ## Install files to ***C:\Program Files***
 First we need to get the files copied to the system. The files can be put anywhere on any of the disks, **BUT** the file permissions under "\Program Files\" are already just the way we need them. I've only tested this directory so your mileage may vary if you put the files elsewhere.
 
-One of the steps is to rename the extracted directory. It's optional but recommended. GitHub insists on putting the branch name in the Zip file's name, but I don't use that.
+One of the steps is to rename the extracted directory. GitHub insists on putting the branch name in the Zip file's name, but I don't use that.
 
 Steps:
 
@@ -37,8 +37,10 @@ You will end up with a file that looks something like *combined-extended-2019120
 
 You may leave the file name as-is or you may change the word "extended" to something else that's more meaningful for you. **You must put your custom name between the dashes.** Leave everything else in the file name alone. For some of my clients I just use a one word company name, but for more complicated setups where I want different exceptions based on the server's use I'll use the server's name. For example I may change the name to *combined-exampleco-20191206_104615.json* or *combined-fileserver1-20191206_104615.json*.
 
-## Everything Search - optional but strongly recommended
+## Everything Search - this will help avoid false positives
 The purpose of this step is to find all the files on your system that match ransomware file names. Run the *EverythingSearchForRansomware.py* script and generate a report in whatever format is convenient for you (text, csv, or JSON). Your OS drive will have matches that are completely safe. *.rat* files are one example. If you are already infected with ransomware or have leftovers from a previous attack you will find all those files with this process. And this is fast. You can search 5 million file names in less than 3 minutes.
+
+Note: The JSON format report has a number of attributes, and at first glance it's not clear where you should look. Focus on the "filters-FSRMmatched" attribute. These are the matches that the FSRM engine is actively trying to match. We'll cover how to use the other attributes in a seperate deep dive document.
 
 Once you've screened all the files you found, and remediated them if necessary, you're ready to come up with your exceptions to add to your JSON file. We'll cover exceptions handing in much deeper detail in a separate doc. For now just run the search and find out what you have.
 
