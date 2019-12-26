@@ -1,5 +1,5 @@
-Update note: 26Dec2019:
-Switched the sample Windows Sorted File Names archive from Zip to 7zip because the 7zip utility is more consistent about unzipping files with a leading space in their names. Added files with leading dots in their file names to archive too.
+Update notes: 26Dec2019:
+Switched the sample Windows Sorted File Names archive from Zip to 7zip because the 7zip utility is more consistent about unzipping files with a leading space in their names. Added files with leading dots in their file names to archive too. Refreshed extended JSON file.
 
 Update note 7Dec2019:
 The rough and in-progress installation and configuration instructions are under way and uploaded to Git. Look for the file named *FSRM-Anti-ransomware Installation and Scheduler Setup.md*.
