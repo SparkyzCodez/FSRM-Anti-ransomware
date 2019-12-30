@@ -5,7 +5,9 @@ There's a new triggered script to deny permissions to shares that now includes e
 
 The event logging source is now ***FSRM-Anti-ransomware Suite*** instead of FSRM-AntiRansomwareScript. Since there's a number of moving parts, including three PowerShell scripts and a couple Python apps, I think this better reflects the nature of this project.
 
-Finally, the filters from Experiant dated 26 Dec 2019 had something unexpected in them. One filter has an escaped new-line in it. This is what it looks like in the JSON data "\*.support@anonymous-service.cc.ppdddp\nUnusual". It's the backslash-n just in front of *Unusual*. It's importing into the FSRM file group as a space, but that seems more accidental than intentional. Since a new-line is not allowed in Windows file names I need to research this some more. 
+Finally, the filters from Experiant dated 26 Dec 2019 had something unexpected in them. One filter has an escaped new-line in it. This is what it looks like in the JSON data "\*.support@anonymous-service.cc.ppdddp\nUnusual". It's the backslash-n just in front of *Unusual*. It's importing into the FSRM file group as a space, but that seems more accidental than intentional. Since a new-line is not allowed in Windows file names I need to research this some more. For those of you playing at home, this is a regex that will find an illegal character in a Windows file name:
+
+[\x00-\x1f]|\||"|<|>|:|\*|\?|\\|\/
 
 Update notes: 26Dec2019:
 Switched the sample Windows Sorted File Names archive from Zip to 7zip because the 7zip utility is more consistent about unzipping files with a leading space in their names. Added files with leading dots in their file names to archive too. Refreshed extended JSON file.
