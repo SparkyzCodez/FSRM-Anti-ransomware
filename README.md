@@ -1,4 +1,5 @@
 Progress Note: 30 Dec 2019
+
 We're skipping version 2.4.x and proceeding directly to 2.5.x BUT it's not uploaded to Git just yet. I'll post a message here when I get it completed and uploaded.
 
 There's a new triggered script to deny permissions to shares that now includes event log messages and a fail safe in case the FSRM event timers are set to anything but 0 minutes (critical setting). The location of the triggered script is now in the same directory as the FSRM-Anti-ransomare script too. An additional feature in the triggered script is that you will be able to use it to unlock a user's account by passing the ***-Unlock*** switch to the script.
@@ -10,6 +11,7 @@ Finally, the filters from Experiant dated 26 Dec 2019 had something unexpected i
 [\x00-\x1f]|\||"|<|>|:|\*|\?|\\|\/
 
 Update notes: 26Dec2019:
+
 Switched the sample Windows Sorted File Names archive from Zip to 7zip because the 7zip utility is more consistent about unzipping files with a leading space in their names. Added files with leading dots in their file names to archive too. Refreshed extended JSON file.
 
 # FSRM-Anti-ransomware
