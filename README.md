@@ -2,7 +2,7 @@ Progress Note: 30 Dec 2019
 
 We're skipping version 2.4.x and proceeding directly to 2.5.x BUT it's not uploaded to Git just yet. I'll post a message here when I get it completed and uploaded.
 
-There's a new triggered script to deny permissions to shares that now includes event log messages and a fail safe in case the FSRM event timers are set to anything but 0 minutes (critical setting). The location of the triggered script is now in the same directory as the FSRM-Anti-ransomare script too. An additional feature in the triggered script is that you will be able to use it to unlock a user's account by passing the ***-Unlock*** switch to the script.
+There's a new triggered script to deny permissions to shares that now includes event log messages and a fail safe in case the FSRM event timers are set to anything but 0 minutes (critical setting). The location of the triggered script defaults to the same directory as the FSRM-Anti-ransomare script too, but it's still configurable. An additional feature in the triggered script is that you will be able to use it to unlock a user's account by passing the ***-Unlock*** switch to the script.
 
 The event logging source is now ***FSRM-Anti-ransomware Suite*** instead of FSRM-AntiRansomwareScript. Since there's a number of moving parts, including three PowerShell scripts and a couple Python apps, I think this better reflects the nature of this project.
 
