@@ -3,7 +3,7 @@ We're skipping version 2.4.x and proceeding directly to 2.5.x BUT it's not uploa
 
 There's a new triggered script to deny permissions to shares that now includes event log messages and a fail safe in case the FSRM event timers are set to anything but 0 minutes (critical setting). The location of the triggered script is now in the same directory as the FSRM-Anti-ransomare script too. An additional feature in the triggered script is that you will be able to use it to unlock a user's account by passing the ***-Unlock*** switch to the script.
 
-The event logging source is not ***FSRM-Anti-ransomware Suite*** instead of FSRM-AntiRansomwareScript. Since there's a number of moving parts including three PowerShell scripts and a couple Python apps I think this better reflects the nature of this project.
+The event logging source is now ***FSRM-Anti-ransomware Suite*** instead of FSRM-AntiRansomwareScript. Since there's a number of moving parts including three PowerShell scripts and a couple Python apps I think this better reflects the nature of this project.
 
 Finally, the filters from Experiant dated 26 Dec 2019 had something unexpected in them. One filter has an escaped new-line in it. This is what it looks like in the JSON data "\*.support@anonymous-service.cc.ppdddp\nUnusual". It's the backslash-n just in front of *Unusual*. It's importing into the FSRM file group as a space, but that seems more accidental than intentional. Since a new-line is not allowed in Windows file names I need to research this some more. 
 
