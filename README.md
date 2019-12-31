@@ -1,4 +1,4 @@
-Progress Note: 30 Dec 2019
+Progress Note: 31 Dec 2019
 
 We're skipping version 2.4.x and proceeding directly to 2.5.x BUT it's not uploaded to Git just yet. I'll post a message here when I get it completed and uploaded.
 
@@ -6,9 +6,13 @@ There's a new triggered script to deny permissions to shares that now includes e
 
 The event logging source is now ***FSRM-Anti-ransomware Suite*** instead of FSRM-AntiRansomwareScript. Since there's a number of moving parts, including three PowerShell scripts and a couple Python apps, I think this better reflects the nature of this project.
 
-Finally, the filters from Experiant dated 26 Dec 2019 had something unexpected in them. One filter has an escaped new-line in it. This is what it looks like in the JSON data "\*.support@anonymous-service.cc.ppdddp\nUnusual". It's the backslash-n just in front of *Unusual*. It's importing into the FSRM file group as a space, but that seems more accidental than intentional. Since a new-line is not allowed in Windows file names I need to research this some more. For those of you playing at home, this is a regex that will find an illegal character in a Windows file name:
+Finally, the filters from Experiant dated 30 Dec 2019 had something unexpected in them. One filter has an escaped new-line in it. This is what it looks like in the JSON data "\*.support@anonymous-service.cc.ppdddp\nUnusual". It's the backslash-n just in front of *Unusual*. The new line is importing into the FSRM file group as a space, but that seems more accidental than intentional. I've written a little PowerShell utility that will screen the filters on your file system using your live file system's limitations. It's in the ancillary folder. Let me know what you think.
+
+For those of you playing at home, this is a regex that will find an illegal character in a Windows file name:
 
 [\x00-\x1f]|\||"|<|>|:|\*|\?|\\|\/
+
+You can also use PowerShell's Test-Path with the -IsValid switch for your own testing. It's what I used in the ancillary script.
 
 Update notes: 26Dec2019:
 
