@@ -35,7 +35,7 @@ $PSobj.filters | ForEach-Object {
     $TestFspec = $_
     # look through $TestFspec for * and ?, and replace with legal placeholder characters, this will sub legal characters for the legal wildcards
     $TestFspec = $TestFspec -replace '\*','ZZ'  # since a * can match more then one character let's use more than one substitute character
-    $TestFspec = $TestFspec -replace '\?','Y'   # matches a single character
+    $TestFspec = $TestFspec -replace '\?','Y'   # ? only matches a single character so we'll use just one substitue character
     if (Test-Path -IsValid -Path $TestFspec)
         {
         $alpha += $_

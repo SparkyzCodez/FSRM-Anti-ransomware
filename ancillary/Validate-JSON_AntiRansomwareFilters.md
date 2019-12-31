@@ -1,4 +1,4 @@
-30 Dec 2019, Wishing you a better and brighter New Year
+31 Dec 2019, Wishing you a better and brighter New Year
 
 For additional info:
 Get-Help Validate-JSON_AntiRansomwareFilters.ps1
