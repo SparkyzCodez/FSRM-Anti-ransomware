@@ -1,4 +1,5 @@
 Progress Note: 31 Dec 2019
+
 I wish you a happy and prosperous New Year in 2020.
 
 Now to business:
