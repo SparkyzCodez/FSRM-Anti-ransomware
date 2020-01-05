@@ -1,4 +1,4 @@
-Quick Note: I'm just about done testing v2.5 with imporved event logging, rapid SMB disconnect, and support for leading dots in the honey pot names. Just one more day and I'll get it uploaded to Git.
+Quick Note: 5 Jan 2020 - I'm just about done testing v2.5 with imporved event logging, rapid SMB disconnect, and support for leading dots in the honey pot names. Just one more day and I'll get it uploaded to Git.
 
 Progress Note: 31 Dec 2019
 
