@@ -1,3 +1,5 @@
+Quick Note: I'm just about done testing v2.5 with imporved event logging, rapid SMB disconnect, and support for leading dots in the honey pot names. Just one more day and I'll get it uploaded to Git.
+
 Progress Note: 31 Dec 2019
 
 I wish you a happy and prosperous New Year in 2020.
