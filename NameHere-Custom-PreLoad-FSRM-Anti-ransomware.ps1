@@ -21,7 +21,7 @@ begin
     # Edit this variable with the parameters you want to use every time. Use this loader in the task scheduler.
     # !! You must escape all dollar signs with back tick. eg. $true must appear as `$true
     # !! you must wrap any parameter strings that contain spaces with single quotes, eg. '[Admin Email]'
-    $ScriptParameters = "-SMTPServer youremailserver.example.org -AdminEmailTo needtoknow@example.org -JSONfnamesubstring example -RansomwareTemplateIsActive `$false -HoneyPotDirectoryNamePattern ?ITDept_DoNotTamperWithContents -HoneyPotDirectoryNameWildcardMatchesLeadingDot `$false -TriggeredScriptEmailTo '[Admin Email]' -ApplyRansomewareScreenToShares `$false  -YesAllTheVariablesAreSetHowIWant `$false"
+    $ScriptParameters = "-SMTPServer youremailserver.example.org -AdminEmailTo needtoknow@example.org -JSONfnamesubstring extended -RansomwareTemplateIsActive `$false -HoneyPotDirectoryNamePattern ?ITDept_DoNotTamperWithContents -HoneyPotDirectoryNameWildcardMatchesLeadingDot `$false -TriggeredScriptEmailTo '[Admin Email]' -ApplyRansomewareScreenToShares `$false  -YesAllTheVariablesAreSetHowIWant `$false"
     }
 # do not edit anything in the process block
 process

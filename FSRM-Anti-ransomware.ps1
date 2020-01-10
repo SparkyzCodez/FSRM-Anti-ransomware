@@ -444,7 +444,7 @@ Process
         {
         $FnameExtFilters = $ValidatedFilters
         # now barf an event log warning with the invalid filter strings
-        $message = "`Warning:`nInvalid input filters were detected. They will be skipped and not applied to the file group.`n"
+        $message = "`Warning:`nInvalid input filters were detected. They will be skipped and not applied to the ransomware file group.`n"
         $message = $message +"`nInvalid filters found`n:"+$InvalidFilters
         Write-Host -ForegroundColor Yellow -BackgroundColor Black $message
         Write-EventLog -LogName $EventLog -Source $EventLoggingSource -Category 0 -EventID 1007 -EntryType Warning -Message $message
