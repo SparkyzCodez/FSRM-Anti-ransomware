@@ -1,4 +1,6 @@
-Quick Note: 5 Jan 2020 - I'm just about done testing v2.5 with imporved event logging, rapid SMB disconnect, and support for leading dots in the honey pot names. Just one more day and I'll get it uploaded to Git.
+New branch 10 Jan 2020
+
+The **2.5-changes branch** has what I believe to be solid updates. I've tested the new script versions on W2012 and W2012r2. It seems to be working nicely. I think you'd be safe installing these but I still have more testing to do on W2016 and W2019. We'll run with this second branch for a while longer before I merge it. Let me know your thoughts.
 
 Progress Note: 31 Dec 2019
 
