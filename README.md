@@ -4,7 +4,7 @@ The testing branch 2.5 looked good and it is now merged into the master.
 
 I've also refreshed the combined-extended-20200116_000000.json file by removing the two illegal filespecs. One was __\*.\_NEMTY\_<\*>\___ and this one won't come back because it's not included in the Experiant download any more.
 
-The other filespec is __\*.support(at)anonymous-service.cc.ppdddp(line return here)Unusual__, which I've mangled a bit so that it displays here. This one is still included in the Experiant JSON data so it will keep getting put back into our exended JSON data too. The FSRM-Anti-ransomware.ps script will continue to filter it out before it ever gets to our file groups. I'm still adding functionality to the AntiransomwareFiltersMerge.py script to handle this more gracefully. Take a look at the issues for this project to keep up with the latest details.
+The other filespec is __\*.support(at)anonymous-service.cc.ppdddp(line return here)Unusual__, which I've mangled a bit so that it displays here. This one is still included in the Experiant JSON data so it will keep getting put back into our exended JSON data too. The FSRM-Anti-ransomware.ps script will filter it out before it ever gets to our file groups. I'm still adding functionality to the AntiransomwareFiltersMerge.py script to handle this more gracefully. Take a look at the issues for this project to keep up with the latest details.
 
 Progress Note: 31 Dec 2019
 
