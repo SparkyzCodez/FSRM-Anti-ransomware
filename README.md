@@ -1,13 +1,18 @@
 16 Jan 2020
 
 The testing branch 2.5 looked good and it is now merged into the master.
+
+I've also refreshed the combined-extended-20200116_000000.json file by removing the two illegal filespecs. One was __\*.\_NEMTY\_<\*>\___ and this one won't come back because it's not included in the Experiant download any more.
+
+The other filespec is __\*.support(at)anonymous-service.cc.ppdddp(line return here)Unusual__, which I've mangled a bit so that it displays here. This one is still included in the Experiant JSON data so it will keep getting put back into our exended JSON data too. The FSRM-Anti-ransomware.ps script will filter it out before it ever gets to our file groups. I'm still adding functionality to the AntiransomwareFiltersMerge.py script to handle this more gracefully. Take a look at the issues for this project to keep up with the latest details.
+
 Progress Note: 31 Dec 2019
 
 I wish you a happy and prosperous New Year in 2020.
 
 Now to business:
 
-We're skipping FSRM-Anti-ransomware version 2.4.x and proceeding directly to 2.5.x BUT it's not uploaded to Git just yet. I'll post a message here when I get it completed and uploaded.
+We're skipping FSRM-Anti-ransomware version 2.4.x and proceeding directly to 2.5.x BUT it's not uploaded to Git just yet. I'll post a message here when I get it completed and uploaded. __UPDATE: This is now in the master branch and we're on version 2.5.__
 
 There's a new triggered script to deny permissions to shares that now includes event log messages and a fail safe in case the FSRM event timers are set to anything but 0 minutes (critical setting). The location of the triggered script defaults to the same directory as the FSRM-Anti-ransomare script too, but it's still configurable. An additional feature in the triggered script is that you will be able to use it to unlock a user's account by passing the ***-Unlock*** switch to the script. It also outputs messages to the Windows event log.
 
