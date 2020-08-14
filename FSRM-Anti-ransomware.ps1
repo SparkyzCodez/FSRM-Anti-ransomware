@@ -557,7 +557,7 @@ Process
 			# since we're never going to apply a drive level screen to C: we need to apply the screen template to all shares on C: except those under C:\Windows
 			# this is an arbitrary decision on my part, recode as necessary
 			Get-SmbShare | Select-Object -Property * | 
-			Where-Object {($_.Special -ne "True") -and ($_.ShareType -eq "FileSystemDirectory") -and ($_.Path -like "C:\*") -and ($_.Path -notlike "C:\Windows\*")} | 
+			Where-Object {($_.Special -ne "True") -and ($_.ShareType -eq "FileSystemDirectory") -and ($_.Path -like "C:\*") -and ($_.Path -notlike "C:\Windows\*") -and ($_.Path -notlike "$HoneyPotDirectoryNamePattern")} | 
 			ForEach-Object {If (-not (Get-FsrmFileScreen -Path $_.Path -ErrorAction SilentlyContinue)) {New-FsrmFileScreen -Path $_.Path -Template $RansomwareTemplateName}}
 			}
 
@@ -567,7 +567,7 @@ Process
 		If ($ApplyRansomewareScreenToShares)
 			{
 			Get-SmbShare | Select-Object -Property * | 
-			Where-Object {($_.Special -ne "True") -and ($_.ShareType -eq "FileSystemDirectory") -and ($_.Path -notlike "C:\Windows\*")} | 
+			Where-Object {($_.Special -ne "True") -and ($_.ShareType -eq "FileSystemDirectory") -and ($_.Path -notlike "C:\Windows\*") -and ($_.Path -notlike "$HoneyPotDirectoryNamePattern")} | 
 			ForEach-Object {If (-not (Get-FsrmFileScreen -Path $_.Path -ErrorAction SilentlyContinue)) {New-FsrmFileScreen -Path $_.Path -Template $RansomwareTemplateName}}
 			}
 		}
