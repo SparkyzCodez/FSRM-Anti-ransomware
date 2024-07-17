@@ -61,6 +61,7 @@ That's the very sparse quick start. I'll get very detailed instructions done soo
 
 Be sure to keep a close eye on these project files. This is under active development and I have plenty of to-dos to get to.
 
-Jason Kreisler
+Cheers,
+Sparky Z Codez
 
 8 Nov 2019
