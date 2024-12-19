@@ -1,3 +1,6 @@
+19 Dec 2024
+Officially archiving this repo.
+
 17 Jul 2024
 The company that had live updates of ransomware file names went offline with their service a few years ago. Without a replacement this project is dead. I hope you can use it as a springboard for whatever projects you're working on.
 
